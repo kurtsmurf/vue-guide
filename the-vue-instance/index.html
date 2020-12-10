@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Guide - The Vue Instance</title>
+</head>
+
+<body>
+
+  <div id="app" class="app">
+    {{ a }}
+  </div>
+
+</body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script>
+  var data = { a: 1 }
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    created: function () {
+      console.log(`created: a is ${this.a}`)
+    },
+    mounted: function () {
+      console.log('mounted')
+    }
+  })
+
+  vm.$watch('a', function (newValue, oldValue) {
+    console.log(`changed a from ${oldValue} to ${newValue}`)
+  })
+
+  console.log(vm.a === data.a)
+
+  vm.a = 2
+
+  data.a = 3
+
+  console.log(vm.a === 3)
+  console.log(vm.$data === data)
+  console.log(vm.$el === document.querySelector('#app'))
+
+</script>
+
+<style>
+  .app {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin: 1rem;
+    padding: 1rem;
+  }
+</style>
