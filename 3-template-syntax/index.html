@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Guide - Template Syntax</title>
+</head>
+
+<body>
+
+    <div id="raw-html-app" class="app">
+        <!-- Inject raw html using the v-html directive -->
+        <section v-html='rawHtml' id="raw-html-container"></section>
+    </div>
+
+    <div id="template-expressions-app" class="app">
+        <!-- Using v-bind shorthand ':' -->
+        <div v-for="blah in blahs" :id="'blah-' + blahs.indexOf(blah)">
+            {{ blah.content }}
+        </div>
+    </div>
+
+    <div id="directives-app" class="app">
+        <!-- 
+            Dynamic argument to v-on directive
+            Accepts a js expression inside square braces
+            Using v-on shorthand '@'
+         -->
+        <button @[on]="clickMethod">Cleek Mee</button>
+    </div>
+
+</body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#directives-app',
+        data: {
+            on: 'click'
+        },
+        methods: {
+            clickMethod: () => alert('u cleeeeked meeeeee')
+        }
+    })
+
+    new Vue({
+        el: '#template-expressions-app',
+        data: {
+            blahs: [
+                { content: "wono" },
+                { content: "blerp" },
+                { content: "911" },
+            ]
+        }
+    })
+
+    new Vue({
+        el: '#raw-html-app',
+        data: {
+            rawHtml: `
+                <div>
+                    <p>This is a p inside a div in raw html</p>
+                </div>
+            `
+        }
+    })
+</script>
+
+<style>
+    .app {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        margin: 1rem;
+        padding: 1rem;
+    }
+</style>
