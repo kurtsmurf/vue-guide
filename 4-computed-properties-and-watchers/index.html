@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Guide - Computed Properties and Watchers</title>
+</head>
+
+<body>
+
+    <!-- <img src="https://yesno.wtf/assets/no/17-829284e9dd894ce9fb65fbe86d2e382c.gif" alt="" srcset=""> -->
+
+    <div id="example" class="app">
+        <p>Original message: "{{ message }}"</p>
+        <p>Computed reversed message: "{{ reversedMessage }}"</p>
+        <p>now it's: {{ now }}</p>
+        <p>now it's (still): {{ now }}</p>
+    </div>
+
+    <div id="watch-example" class="app">
+        <p>
+            Ask a Yes/No question:
+            <input v-model="question">
+        </p>
+        <p>{{ answer }}</p>
+        <img v-if="image" :src="image" alt="">
+    </div>
+
+</body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+
+<script>
+    new Vue({
+        el: '#watch-example',
+        data: {
+            question: '',
+            answer: 'I can\'t give you an answer until you ask a question :/',
+            image: null
+        },
+        watch: {
+            question: function (newQuestion, oldQuestion) {
+                this.answer = 'Waiting for you to stop typing...'
+                this.image = null
+                this.deboundedGetAnswer()
+            }
+        },
+        created: function () {
+            this.deboundedGetAnswer = _.debounce(this.getAnswer, 500)
+        },
+        methods: {
+            getAnswer: function () {
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Questions usually contain a question mark.'
+                    this.image = null
+                    return
+                }
+                this.answer = "Thinking..."
+                var vm = this
+                axios.get('https://yesno.wtf/api')
+                    .then(response => {
+                        vm.answer = _.capitalize(response.data.answer)
+                        vm.image = response.data.image
+                    })
+                    .catch(error => {
+                        vm.answer = 'Error! Could not reach the api. ' + error
+                        vm.image = null
+                    })
+            }
+        }
+    })
+</script>
+
+<script>
+
+    var vm = new Vue({
+        el: '#example',
+        data: {
+            message: 'Hello'
+        },
+        computed: {
+            reversedMessage: function () {
+                console.log('reversing message: ' + this.message)
+                return this.message.split('').reverse().join('')
+            },
+            now: function () {
+                return Date.now() // bad
+            }
+        },
+        methods: {
+            reverseMessage: function () {
+                console.log('reversing message (method): ' + this.message)
+                return this.message.split('').reverse().join('')
+            }
+        }
+    })
+
+    vm.reversedMessage
+    vm.reversedMessage
+    // ^ calling reversedMessage again doesn't fire the anonymous
+    // function again. Check the console - the message "reversing
+    // message: Hello" should only appear once
+
+    vm.reverseMessage()
+    vm.reverseMessage()
+    vm.reverseMessage()
+    // Methods are not cached, so calling the method version will
+    // cause the message 'reversing message (method): Hello' to be
+    // printed every time
+
+    console.log(vm.now)
+    console.log(vm.now)
+    console.log(vm.now)
+    console.log(vm.now)
+    console.log(vm.now)
+    // vm.now will not recompute, because DateTime.now is not a
+    // reactive dependency. Vue knows when to update
+    // reversedMessage, because it knows that it depends on message,
+    // so it will invalidate the reversedMessage cache whenever
+    // message updates.
+</script>
+
+<style>
+    .app {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        margin: 1rem;
+        padding: 1rem;
+    }
+</style>
