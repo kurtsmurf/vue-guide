@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Guide - Event Handling</title>
+</head>
+
+<body>
+
+    <div id="example-1" class="app">
+        <button @click="count++">Click Me</button>
+        <p>I have been clicked {{ count }} times</p>
+    </div>
+
+    <div id="example-2" class="app">
+        <button @click="greet">Greet</button>
+    </div>
+
+    <div id="example-3" class="app">
+        <button @click="() => say('Hi!')">Say Hi</button>
+        <button @click="say('What?')">Say What</button>
+        <button @click="say(`${$event.target.tagName} says what?`)">
+            Say "BUTTON says what?"
+        </button>
+
+        <form @submit.prevent="say('no reload')">
+            <button type="submit">Submit without reloading thanks to .prevent</button>
+        </form>
+
+        <button @click.once="say('just once!')">Only clicks once thanks to .once</button>
+
+        <input @keyup.page-down="say('page down')">
+    </div>
+</body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+<script>
+
+    new Vue({
+        el: '#example-3',
+        methods: {
+            say: message => alert(message)
+        }
+    })
+
+    new Vue({
+        el: '#example-2',
+        data: {
+            me: "Vue.js"
+        },
+        methods: {
+            greet: function (event) {
+                alert(`Hello from ${this.me} and ${event.target.tagName}!`)
+            }
+        }
+    })
+
+    new Vue({
+        el: '#example-1',
+        data: {
+            count: 0
+        }
+    })
+
+</script>
+
+<style>
+    .app {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        margin: 1rem;
+        padding: 1rem;
+    }
+</style>
