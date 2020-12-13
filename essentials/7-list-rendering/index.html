@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Guide - List Rendering</title>
+</head>
+
+<body>
+
+    <div id="v-for-example" class="app">
+        <h3><code>v-for</code> with an array</h3>
+        <ul>
+            <li v-for="(item, index) in items">
+                {{ item }} - {{ index }}
+            </li>
+        </ul>
+        <h3><code>v-for</code> with an object</h3>
+        <ul>
+            <li v-for="(value, name, index) in object">
+                {{ value }} - {{ name }} - {{ index }}
+            </li>
+        </ul>
+    </div>
+
+    <div>
+        <p>
+            Something about the <code>v-for</code> directive disturbs
+            me.
+
+            Until now, I was pretty sure directive arguments were
+            plain old javascript, and that felt good, familiar, safe.
+
+            Javascript inside of a string is kind of gross, but at least
+            I was pretty sure I understood the semantics of what I was
+            writing.
+        </p>
+        <p>
+            With <code>v-for</code>, clearly I wasn't dealing with an
+            expression, but I figured the 'blah in blahs' piece was
+            getting turned into to something like <code>for (blah in
+            blahs) { ... }</code>.
+
+            Suddenly I'm not so sure.
+
+            I've noticed that I can use <code>in</code> and
+            <code>of</code> interchangeably, which is
+            <a
+                href="https://stackoverflow.com/questions/29285897/what-is-the-difference-between-for-in-and-for-of-statements-in-jav">
+                not the case in regular js code
+            </a>
+            and this has shaken my confidence in the mental model
+            that was beginning to take shape.
+        </p>
+        <p>
+            My gripe with Vue from the start has been that it seems
+            like I need to learn a bunch of new constructs.
+
+            Compare that to React.
+
+            Learning React was like picking up any new javascript
+            library - the API was unfamiliar, but the language
+            constructs were the same.
+
+            React is "just javascript" &trade; and the data flow is
+            explicit, and all that good stuff (I may have drank some
+            kool-aid, to be fair).
+
+            Vue, by contrast, feels a lot more magical.
+
+            Things are always dropping off the map in one place and
+            popping up somewhere else, and I'm just supposed to trust
+            the pipes that make it all happen, and I don't like that.
+
+            I don't get how it does what it does, and that makes me
+            uneasy.
+        </p>
+        <p>
+            Just had to get that off my chest, now back to our regularly
+            scheduled programming
+        </p>
+    </div>
+
+    <div id="filtered-sorted-results-app" class="app">
+        <h3><code>v-for</code> with filtered list</h3>
+
+        <ul>
+            <li v-for="n in evenNumbers">{{ n }}</li>
+        </ul>
+
+        <h3>Nested <code>v-for</code></h3>
+
+        <ul v-for="set in sets">
+            <li v-for="n in even(set)">
+                {{ n }}
+            </li>
+        </ul>
+
+        <!-- 
+        sets.map(set => h(
+            'ul',
+            {},
+            set.filter(even).map(n => h(
+                'li',
+                {},
+                n
+            ))
+        )) 
+        -->
+
+        <h3><code>v-for</code> with a range</h3>
+        <ul>
+            <li v-for="n in 10">{{ n }}</li>
+        </ul>
+    </div>
+
+    <div id="todo-app" class="app">
+        <!-- Use .prevent on the v-on argument to prevent default action -->
+        <form v-on:submit.prevent="addNewTodo">
+            <label for="new-todo">Add a todo</label>
+            <input v-model="newTodoTitle" id="new-todo" placeholder="E.g. feed the cat">
+            <button>Add</button>
+        </form>
+        <ul>
+            <li is="todo-item" v-for="(todo, index) in todos" :key="todo.id" :title="todo.title"
+                v-on:remove="todos.splice(index, 1)">
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script>
+
+    Vue.component('todo-item', {
+        template: `
+            <li>
+                {{ title }}
+                <button v-on:click="$emit('remove')">Remove</button>
+            </li>
+        `,
+        props: ['title']
+    })
+
+    var todosApp = new Vue({
+        el: '#todo-app',
+        data: {
+            newTodoTitle: '',
+            nextTodoId: 2,
+            todos: [
+                { id: 1, title: 'do something' }
+            ]
+        },
+        methods: {
+            addNewTodo: function () {
+                this.todos.push({
+                    id: this.nextTodoId++,
+                    title: this.newTodoTitle
+                })
+                this.newTodoTitle = ''
+            }
+        }
+    })
+
+    new Vue({
+        el: '#filtered-sorted-results-app',
+        data: {
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            sets: [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]
+        },
+        computed: {
+            evenNumbers: function () {
+                return this.numbers.filter(n => n % 2 === 0)
+            }
+        },
+        methods: {
+            even: nums => nums.filter(n => n % 2 === 0)
+        }
+    })
+
+    new Vue({
+        el: '#v-for-example',
+        data: {
+            items: [
+                'Blerp',
+                'Doop'
+            ],
+            object: {
+                title: 'Doing Lists in Vue',
+                author: 'Jane Doe',
+                date: 'Jan 1, 2020'
+            }
+        }
+    })
+
+
+</script>
+
+<style>
+    body {
+        margin: 1rem;
+    }
+
+    .app {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+</style>
