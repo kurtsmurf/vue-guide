@@ -4,12 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vue Guide - </title>
+    <title>Vue Guide - Components Basics</title>
 </head>
 
 <body>
 
+    <div id="components-demo" class="app">
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+    </div>
 
+    <div id="blog-post-component-demo" class="app">
+        <div :style="{ fontSize: postFontSize + 'em' }">
+            <blog-post
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+                @enlarge-text="onEnlargeText"
+            />
+        </div>
+    </div>
+
+    <div id="component-v-model-demo" class="app">
+        <!-- <custom-input
+            :value="message"
+            @input="message = $event"
+        ></custom-input> -->
+
+        <!-- above and below are equivalent -->
+
+        <custom-input
+            v-model="message"
+        ></custom-input>
+    </div>
+
+    <div id="slot-demo" class="app">
+        <alert-box>
+            Something bad happened!
+        </alert-box>
+    </div>
 
 </body>
 
@@ -19,9 +53,109 @@
 
 <script>
 
+    Vue.component('alert-box', {
+        template: `
+            <div
+                style=" 
+                    background: lightsalmon;
+                    border: 1px solid red;
+                    padding: .5rem;
+                 "
+            >
+                 <strong>Error!</strong>
+                 <slot></slot>
+            </div>
+        `
+    })
+
+    new Vue({
+        el: '#slot-demo',
+
+    })
+
+    // In order to work with v-model, your component must:
+    // 1. Bind the value attribute to a prop
+    // 2. Emit a custom input event on input
+    Vue.component('custom-input', {
+        props: ['value'],
+        template: `
+            <input
+                :value="value"
+                @input="$emit('input', $event.target.value)"
+            >
+        `
+    })
+
+    var vm = new Vue({
+        el: '#component-v-model-demo',
+        data: {
+            message: "initial message"
+        }
+    })
+
+    Vue.component('blog-post', {
+        props: ['post'],
+        template: `
+            <div class="blog-post">
+                <h3>{{ post.title }}</h3>
+                <button @click="$emit('enlarge-text', { by: 0.1 })">
+                    Enlarge Text
+                </button>
+                <div v-html="post.content"></div>
+            </div>
+        `
+    })
+
+    new Vue({
+        el: '#blog-post-component-demo',
+        data: {
+            posts: [
+                {
+                    id: 1,
+                    title: "My journey with Vue",
+                    content: `
+                        <div
+                            style="
+                                background: aquamarine;
+                                padding: 1rem;
+                                border: 5px dashed purple
+                            "
+                        >
+                            <p>just a little content</p>
+                            <p><strong>no big!</strong><p>
+                        </div>
+                    `
+                },
+                { id: 2, title: "My journey with Blue", content: '...content...' },
+                { id: 3, title: "My journey with You", content: '...content...' },
+            ],
+            postFontSize: 1
+        },
+        methods: {
+            onEnlargeText: function (event) {
+                this.postFontSize += event.by
+            }
+        }
+    })
+
+    Vue.component('button-counter', {
+        data: () => ({ count: 0 }),
+        template: `
+            <button @click="count++">
+                You clicked me {{ count }} times.
+            </button>
+        `
+    })
+
+    new Vue({ el: '#components-demo' })
+
 </script>
 
 <style>
+    body {
+        margin: 1rem;
+    }
+
     .app {
         border: 1px solid #eee;
         border-radius: 5px;
